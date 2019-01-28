@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "856772972106",
+    "firebase_url": "https://yourfavouritemovies-cedf7.firebaseio.com",
+    "project_id": "yourfavouritemovies-cedf7",
+    "storage_bucket": "yourfavouritemovies-cedf7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:856772972106:android:f4ba11443d2323ae",
+        "android_client_info": {
+          "package_name": "fr.pocus.projetperso"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "856772972106-9dcufoh97cvo8vq5t9qs421qa6lv263t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZCiKG1u4forSVrQuMacvRIAUBtRhvpas"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

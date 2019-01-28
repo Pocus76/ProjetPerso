@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:padding="4dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imageViewFilm"
+                android:layout_width="200dp"
+                android:layout_height="250dp"
+                android:layout_marginTop="15dp"
+                android:layout_centerHorizontal="true" />
+
+            <LinearLayout
+                android:layout_marginTop="15dp"
+                android:layout_below="@id/imageViewFilm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/titre_film"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="18dp"
+                    android:textColor="@android:color/white"
+                    android:textAlignment="center"/>
+
+                <RatingBar
+                    android:layout_marginTop="15dp"
+                    android:id="@+id/rating_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_height="wrap_content"
+                    style="@style/Base.Widget.AppCompat.RatingBar.Small"
+                    android:progressBackgroundTint="@android:color/white"
+                    android:progressTint="@android:color/holo_blue_light"/>
+
+                <TextView
+                    android:id="@+id/vote_film"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textAlignment="center"/>
+
+                <TextView
+                    android:layout_marginTop="15dp"
+                    android:id="@+id/description_film"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:clickable="true"
+                    android:textAlignment="center"/>
+
+                <LinearLayout
+                    android:id="@+id/layout_add_comment"
+                    android:layout_marginTop="15dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/txt_comment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/white"
+                        android:hint="Leave your comment"
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:layout_weight="1"
+                        android:backgroundTint="@android:color/white"
+                        android:textColorHint="@android:color/white"/>
+
+                    <ImageButton
+                        android:id="@+id/btn_submit_comment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.1"
+                        android:background="@mipmap/ic_comment"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_marginTop="15dp"
+                    android:id="@+id/txt_connecte"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textAlignment="center"
+                    android:text="You must be logged in to add a comment"
+                    android:visibility="gone"/>
+
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/fragment_main_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

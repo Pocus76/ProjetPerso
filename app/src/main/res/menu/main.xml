@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/pop_movies"
+        android:title="Show popular movies"
+        android:orderInCategory="1"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/top_movies"
+        android:title="Show top rated movies"
+        android:orderInCategory="1"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/theater_movies"
+        android:title="Show theater movies"
+        android:orderInCategory="1"
+        app:showAsAction="never" />
+</menu>
