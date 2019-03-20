@@ -1,5 +1,6 @@
 package fr.pocus.projetperso;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,7 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -17,6 +20,7 @@ import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
@@ -29,6 +33,7 @@ import java.util.HashMap;
 
 import fr.pocus.projetperso.comUtil.CommentHelper;
 import fr.pocus.projetperso.comUtil.FirebaseGestion;
+import fr.pocus.projetperso.comUtil.RatingHelper;
 import fr.pocus.projetperso.comUtil.UserHelper;
 import fr.pocus.projetperso.objets.Comment;
 import fr.pocus.projetperso.objets.Movie;
@@ -56,6 +61,7 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentAda
     private EditText txtComment;
     private ImageButton btnSendComment;
     private RecyclerView recyclerView;
+    private Dialog rankDialog;
 
     private String movieTitle;
     private CommentAdapter commentAdapter;
@@ -89,14 +95,55 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentAda
         ratingBar.setNumStars(10);
         ratingBar.setMax(10);
         ratingBar.setRating((float) mov_intent.getVoteAverage());
-        txtVote.setText(mov_intent.getVoteAverage()+"/10 ("+mov_intent.getVoteCount()+" votes)");
+        txtVote.setText(mov_intent.getVoteAverage()+"/10 ("+mov_intent.getVoteCount()+" notes)");
         txtDescription.setText(mov_intent.getOverview());
+
+        ratingBar.setOnTouchListener(new View.OnTouchListener()
+        {
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                rankDialog = new Dialog(MovieDetailActivity.this, R.style.FullHeightDialog);
+                rankDialog.setContentView(R.layout.rank_dialog);
+                rankDialog.setCancelable(true);
+                ratingBar = (RatingBar)rankDialog.findViewById(R.id.dialog_ratingbar);
+                ratingBar.setRating(2);
+
+                TextView text = (TextView) rankDialog.findViewById(R.id.rank_dialog_text1);
+                text.setText("Notez ce film !");
+
+                Button updateButton = (Button) rankDialog.findViewById(R.id.rank_dialog_button);
+                updateButton.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        RatingHelper.createRateForMovie(ratingBar.getRating(), mov_intent.getTitle(), FirebaseGestion.modelCurrentUser);
+                        Toast.makeText(getApplicationContext(), "Vous avez noté ce film "+ratingBar.getRating()+"/10", Toast.LENGTH_SHORT).show();
+                        rankDialog.dismiss();
+                    }
+                });
+                //now that the dialog is set up, it's time to show it
+                rankDialog.show();
+                return false;
+            }
+        });
 
         if (FirebaseGestion.modelCurrentUser==null)
         {
             layoutAddComment.setVisibility(View.GONE);
             txtConnecte.setVisibility(View.VISIBLE);
+            ratingBar.setOnTouchListener(new View.OnTouchListener()
+            {
+                @Override
+                public boolean onTouch(View v, MotionEvent event)
+                {
+                    Toast.makeText(getApplicationContext(), "Vous devez être connecté pour noter un film", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
         }
+
 
         btnSendComment.setOnClickListener(new View.OnClickListener()
         {

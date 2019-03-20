@@ -78,7 +78,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="@android:color/white"
-                        android:hint="Leave your comment"
+                        android:hint="Ecrivez votre commentaire"
                         android:inputType="textMultiLine|textCapSentences"
                         android:layout_weight="1"
                         android:backgroundTint="@android:color/white"
@@ -100,7 +100,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/white"
                     android:textAlignment="center"
-                    android:text="You must be logged in to add a comment"
+                    android:text="Vous devez être connecté pour ajouter un commentaire"
                     android:visibility="gone"/>
 
 

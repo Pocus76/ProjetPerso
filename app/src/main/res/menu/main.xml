@@ -4,19 +4,19 @@
 
     <item
         android:id="@+id/pop_movies"
-        android:title="Show popular movies"
+        android:title="Les plus populaires"
         android:orderInCategory="1"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/top_movies"
-        android:title="Show top rated movies"
+        android:title="Les mieux notés"
         android:orderInCategory="1"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/theater_movies"
-        android:title="Show theater movies"
+        android:title="Actuellement au cinéma"
         android:orderInCategory="1"
         app:showAsAction="never" />
 </menu>

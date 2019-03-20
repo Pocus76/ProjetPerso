@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         txtNomUser = (TextView) headerView.findViewById(R.id.nom_utilisateur);
         txtMailUser = (TextView) headerView.findViewById(R.id.mail_utilisateur);
         txtNomUser.setText("");
-        txtMailUser.setText("You're not logged in yet");
+        txtMailUser.setText("Vous n'êtes pas connecté");
         return true;
     }
 
@@ -163,17 +163,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.pop_movies)
         {
             refreshList(mPopularList);
-            txtFilter.setText("Popular movies");
+            txtFilter.setText("Les plus populaires");
         }
         if (id == R.id.top_movies)
         {
             refreshList(mTopTopRatedList);
-            txtFilter.setText("Top rated movies");
+            txtFilter.setText("Les mieux notés");
         }
         if (id == R.id.theater_movies)
         {
             refreshList(mTheaterList);
-            txtFilter.setText("Theater movies");
+            txtFilter.setText("Actuellement au cinéma");
         }
         return super.onOptionsItemSelected(item);
     }
@@ -238,10 +238,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (resultCode == RESULT_OK)
             {
                 this.createUserInFirestore();
-                showSnackBar(this.coordinatorLayout, "Connection was successful");
+                showSnackBar(this.coordinatorLayout, "Connexion réussie");
                 txtNomUser.setText(FirebaseGestion.getCurrentUser().getDisplayName());
                 txtMailUser.setText(FirebaseGestion.getCurrentUser().getEmail());
-                btnConnexion.setTitle("Sign out");
+                btnConnexion.setTitle("Se déconnecter");
                 btnConnexion.setIcon(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_logout));
 
                 btnConnexion.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
@@ -258,15 +258,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             { // ERRORS
                 if (response == null)
                 {
-                    showSnackBar(this.coordinatorLayout, "Connection cancelled");
+                    showSnackBar(this.coordinatorLayout, "Connexion perdue");
                 }
                 else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK)
                 {
-                    showSnackBar(this.coordinatorLayout, "No internet connection");
+                    showSnackBar(this.coordinatorLayout, "Vous n'êtes pas connecté à internet");
                 }
                 else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR)
                 {
-                    showSnackBar(this.coordinatorLayout, "An error occurred");
+                    showSnackBar(this.coordinatorLayout, "Une erreur s'est produite");
                 }
 
             }
@@ -290,8 +290,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (origin==SIGN_OUT_TASK)
                 {
                     txtNomUser.setText("");
-                    txtMailUser.setText("You're not logged in yet");
-                    btnConnexion.setTitle("Login");
+                    txtMailUser.setText("Vous n'êtes pas connecté");
+                    btnConnexion.setTitle("Se connecter");
                     btnConnexion.setIcon(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_auth));
                     btnConnexion.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
                     {
@@ -323,15 +323,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected String doInBackground(String... strings)
         {
-            String popularMoviesURL = API_URL+"movie?sort_by=popularity.desc&api_key="+API_KEY;
+            String popularMoviesURL = API_URL+"movie?sort_by=popularity.desc&api_key="+API_KEY+"&language=fr";
             Calendar cal = Calendar.getInstance();
             Date now = cal.getTime();
             cal.add(Calendar.MONTH, -1);
             Date aMonthAgo = cal.getTime();
             String sNow = DateUtils.toJsonString(now);
             String sMonthAgo = DateUtils.toJsonString(aMonthAgo);
-            String theaterMoviesURL = API_URL+"movie?primary_release_date.gte="+sMonthAgo+"&primary_release_date.lte="+sNow+"&api_key="+API_KEY;
-            String topRatedMoviesURL = API_URL+"movie?sort_by=vote_average.desc&api_key="+API_KEY;
+            String theaterMoviesURL = API_URL+"movie?primary_release_date.gte="+sMonthAgo+"&primary_release_date.lte="+sNow+"&api_key="+API_KEY+"&language=fr";
+            String topRatedMoviesURL = API_URL+"movie?sort_by=vote_average.desc&api_key="+API_KEY+"&language=fr";
 
             mPopularList = new ArrayList<>();
             mTopTopRatedList = new ArrayList<>();
@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 else
                 {
-                    Toast.makeText(MainActivity.this,"No Internet Connection",Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this,"Vous n'êtes pas connecté à internet",Toast.LENGTH_LONG).show();
                 }
             } catch (IOException e){
                 e.printStackTrace();
@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     refreshList(mPopularList);
                 }
             });
-            txtFilter.setText("Popular movies");
+            txtFilter.setText("Les plus populaires");
         }
     }
 
