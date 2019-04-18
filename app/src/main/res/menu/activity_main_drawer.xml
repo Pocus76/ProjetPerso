@@ -2,6 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/btn_mon_compte"
+            android:icon="@drawable/ic_account"
+            android:title="Mon compte"
+            android:visible="false"/>
+
+        <item
+            android:id="@+id/btn_films_notes"
+            android:icon="@drawable/ic_star"
+            android:title="Mes films notés"
+            android:visible="false" />
+
         <item
             android:id="@+id/btn_connexion"
             android:icon="@drawable/ic_auth"

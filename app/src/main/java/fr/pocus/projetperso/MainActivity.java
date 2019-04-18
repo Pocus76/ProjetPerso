@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @BindView(R.id.layout_main) ConstraintLayout coordinatorLayout;
     private Menu actionsMenu;
     private MenuItem btnConnexion;
+    private MenuItem btnMonCompte;
+    private MenuItem btnFilmsNotes;
     private NavigationView navigationView;
     private TextView txtNomUser;
     private TextView txtMailUser;
@@ -92,6 +94,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        Menu menuSide = navigationView.getMenu();
+        btnMonCompte = menuSide.findItem(R.id.btn_mon_compte);
+        btnFilmsNotes = menuSide.findItem(R.id.btn_films_notes);
+        btnFilmsNotes.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
+        {
+            @Override
+            public boolean onMenuItemClick(MenuItem item)
+            {
+                Intent intentFilmsNotes = new Intent(MainActivity.this, FilmsNotesActivity.class);
+                startActivity(intentFilmsNotes);
+                return false;
+            }
+        });
         navigationView.setNavigationItemSelectedListener(this);
 
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -198,7 +213,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startSignInActivity();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -241,6 +257,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 showSnackBar(this.coordinatorLayout, "Connexion réussie");
                 txtNomUser.setText(FirebaseGestion.getCurrentUser().getDisplayName());
                 txtMailUser.setText(FirebaseGestion.getCurrentUser().getEmail());
+                btnMonCompte.setVisible(true);
+                btnFilmsNotes.setVisible(true);
                 btnConnexion.setTitle("Se déconnecter");
                 btnConnexion.setIcon(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_logout));
 
@@ -291,6 +309,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     txtNomUser.setText("");
                     txtMailUser.setText("Vous n'êtes pas connecté");
+                    btnFilmsNotes.setVisible(false);
+                    btnMonCompte.setVisible(false);
                     btnConnexion.setTitle("Se connecter");
                     btnConnexion.setIcon(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_auth));
                     btnConnexion.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()

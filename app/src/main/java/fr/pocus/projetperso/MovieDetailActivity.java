@@ -37,6 +37,7 @@ import fr.pocus.projetperso.comUtil.RatingHelper;
 import fr.pocus.projetperso.comUtil.UserHelper;
 import fr.pocus.projetperso.objets.Comment;
 import fr.pocus.projetperso.objets.Movie;
+import fr.pocus.projetperso.objets.Rating;
 import fr.pocus.projetperso.objets.User;
 import fr.pocus.projetperso.utils.CommentAdapter;
 import fr.pocus.projetperso.utils.DateUtils;
@@ -163,23 +164,6 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentAda
         });
 
         this.configureRecyclerView(movieTitle);
-
-        // --- Création de la ArrayList qui permettra de remplire la listView
-        final ArrayList<HashMap<String, String>> listItem = new ArrayList<>();
-
-        // --- On déclare la HashMap qui contiendra les informations pour un item
-        final HashMap<String, String> map = new HashMap<>();
-        map.put("dateItem", DateUtils.toString(new Date()));
-        map.put("nomItem", "Toto");
-        map.put("descriptionItem", "blablablablablblablablablablblablablablablblablablablablblablablablablblablablablablblablablablablblablablablabl");
-
-        // --- enfin on ajoute cette hashMap dans la arrayList
-        listItem.add(map);
-
-        // --- Création d'un SimpleAdapter qui se chargera de mettre les items présent dans notre list
-        final SimpleAdapter adapterPve = new SimpleAdapter (this.getBaseContext(), listItem, R.layout.list_item,
-                new String[] {"dateItem", "nomItem", "descriptionItem"},
-                new int[] {R.id.date_item, R.id.nom_item, R.id.description_item});
     }
 
     private void configureRecyclerView(String movieTitle)
