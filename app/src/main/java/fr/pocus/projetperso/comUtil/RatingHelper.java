@@ -15,6 +15,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import java.util.Map;
 import fr.pocus.projetperso.objets.Movie;
 import fr.pocus.projetperso.objets.Rating;
 import fr.pocus.projetperso.objets.User;
+import fr.pocus.projetperso.utils.FirebaseListener;
 
 import static android.R.attr.rating;
 
@@ -32,6 +34,25 @@ import static android.R.attr.rating;
 public class RatingHelper
 {
     private static final String COLLECTION_NAME = "ratings";
+    private static Collection<FirebaseListener> firebaseListeners = new ArrayList<>();
+
+    public static void addRatingListener(FirebaseListener listener)
+    {
+        firebaseListeners.add(listener);
+    }
+
+    public static void removeRatingListener(FirebaseListener listener)
+    {
+        firebaseListeners.remove(listener);
+    }
+
+    protected static void fireRatingGet(HashMap<String, Rating> listeRatings)
+    {
+        for(FirebaseListener listener : firebaseListeners)
+        {
+            listener.ratingGet(listeRatings);
+        }
+    }
 
     // --- GET ---
 
@@ -40,20 +61,17 @@ public class RatingHelper
         return MovieHelper.getMovieCollection().document(movie).collection(COLLECTION_NAME).orderBy("dateCreated").limit(50);
     }
 
-    public static HashMap<String, Rating> getAllRatingsFromAUser()
+    public static void getAllRatingsFromAUser()
     {
-        Log.d("TOTOTOTOTO", "On est la");
         final HashMap<String, Rating> listRating = new HashMap<>();
-        FirebaseFirestore.getInstance().collection("movies").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
+        MovieHelper.getMovieCollection().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
         {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task)
             {
                 if (task.isSuccessful())
                 {
-                    Log.d("TOTOTOTOTO", "On est la2");
-                    Log.d("TOTOTOTOTO", "size "+task.getResult().size());
-                    for (QueryDocumentSnapshot doc : task.getResult())
+                    for (final QueryDocumentSnapshot doc : task.getResult())
                     {
                         final String movieName = doc.getId();
                         MovieHelper.getMovieCollection().document(movieName).collection(COLLECTION_NAME).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
@@ -69,11 +87,14 @@ public class RatingHelper
                                         Map<String, Object> listDataUser = (Map<String, Object>) listDatas.get("userSender");
                                         if (listDataUser.get("username").equals(FirebaseGestion.modelCurrentUser.getUsername()))
                                         {
-                                            Log.d("Rating", "onComplete: "+document.toObject(Rating.class));
-                                            listRating.put(movieName, document.toObject(Rating.class));
+                                            HashMap mapUserSender = (HashMap) document.getData().get("userSender");
+                                            User userSender = new User(mapUserSender.get("uid").toString(), mapUserSender.get("username").toString());
+                                            Rating rating = new Rating(((Double) document.getData().get("rating")).floatValue(), document.getDate("dateCreated"), userSender);
+                                            listRating.put(movieName, rating);
                                         }
                                     }
                                 }
+                                fireRatingGet(listRating);
                             }
                         });
                     }
@@ -84,16 +105,15 @@ public class RatingHelper
                 }
             }
         });
-        return listRating;
     }
 
-    public static void createRateForMovie(final float rate, final String movie, final User userSender)
+    public static void createRateForMovie(final float rate, final Movie movie, final User userSender)
     {
         // 1 - Create the Message object
         final Rating rating = new Rating(rate, userSender);
 
         // 2 - Store Message to Firestore
-        MovieHelper.getMovieCollection().document(movie).collection(COLLECTION_NAME).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
+        MovieHelper.getMovieCollection().document(movie.getTitle()).collection(COLLECTION_NAME).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
         {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task)
@@ -107,14 +127,17 @@ public class RatingHelper
                         Map<String, Object> listDataUser = (Map<String, Object>) listDatas.get("userSender");
                         if (listDataUser.get("username").equals(FirebaseGestion.modelCurrentUser.getUsername()))
                         {
-                            MovieHelper.getMovieCollection().document(movie).collection(COLLECTION_NAME).document(document.getId()).update("rating", rate);
+                            MovieHelper.getMovieCollection().document(movie.getTitle()).collection(COLLECTION_NAME).document(document.getId()).update("rating", rate);
                             hasAlreadyRated = true;
                             break;
                         }
                     }
                     if (!hasAlreadyRated)
                     {
-                        MovieHelper.getMovieCollection().document(movie).collection(COLLECTION_NAME).add(rating);
+                        Map<String, Object> mapMovie = new HashMap<>();
+                        mapMovie.put("movie", movie.getTitle());
+                        MovieHelper.getMovieCollection().document(movie.getTitle()).set(mapMovie);
+                        MovieHelper.getMovieCollection().document(movie.getTitle()).collection(COLLECTION_NAME).add(rating);
                     }
                 }
             }

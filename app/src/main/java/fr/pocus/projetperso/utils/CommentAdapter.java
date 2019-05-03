@@ -9,6 +9,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 import fr.pocus.projetperso.R;
 import fr.pocus.projetperso.objets.Comment;
+import fr.pocus.projetperso.objets.ViewHolder;
 
 /**
  * Created by Pocus on 25/01/2019.

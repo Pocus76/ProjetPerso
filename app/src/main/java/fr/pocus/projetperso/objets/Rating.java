@@ -14,7 +14,12 @@ public class Rating
     private Date dateCreated;
     private User userSender;
 
-    public Rating() { }
+    public Rating(float rate, Date dateCreated, User userSender)
+    {
+        this.rate = rate;
+        this.dateCreated = dateCreated;
+        this.userSender = userSender;
+    }
 
     public Rating(float rate, User userSender)
     {
@@ -31,7 +36,7 @@ public class Rating
     public User getUserSender() { return userSender; }
 
     // --- SETTERS ---
-    public void setMessage(float rate) { this.rate = rate; }
+    public void setRate(float rate) { this.rate = rate; }
     public void setDateCreated(Date dateCreated) { this.dateCreated = dateCreated; }
     public void setUserSender(User userSender) { this.userSender = userSender; }
 }

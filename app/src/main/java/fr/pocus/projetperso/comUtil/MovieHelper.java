@@ -1,5 +1,7 @@
 package fr.pocus.projetperso.comUtil;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 

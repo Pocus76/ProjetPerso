@@ -1,11 +1,25 @@
 package fr.pocus.projetperso.comUtil;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import fr.pocus.projetperso.objets.Comment;
+import fr.pocus.projetperso.objets.Movie;
 import fr.pocus.projetperso.objets.User;
+import fr.pocus.projetperso.utils.CommentListener;
 
 /**
  * Created by Pocus on 25/01/2019.
@@ -14,20 +28,66 @@ import fr.pocus.projetperso.objets.User;
 public class CommentHelper
 {
     private static final String COLLECTION_NAME = "messages";
+    private static Collection<CommentListener> firebaseListeners = new ArrayList<>();
+
+    public static void addCommentListener(CommentListener listener)
+    {
+        firebaseListeners.add(listener);
+    }
+
+    public static void removeCommentListener(CommentListener listener)
+    {
+        firebaseListeners.remove(listener);
+    }
+
+    protected static void fireCommentGet(List<Comment> listeComments)
+    {
+        for(CommentListener listener : firebaseListeners)
+        {
+            listener.commentGet(listeComments);
+        }
+    }
 
     // --- GET ---
 
-    public static Query getAllCommentsForMovie(String movie)
+    public static Query getAllCommentsForMovie(Movie movie)
     {
-        return MovieHelper.getMovieCollection().document(movie).collection(COLLECTION_NAME).orderBy("dateCreated").limit(50);
+        return MovieHelper.getMovieCollection().document(movie.getTitle()).collection(COLLECTION_NAME).orderBy("dateCreated").limit(50);
     }
 
-    public static Task<DocumentReference> createMessageForChat(String textMessage, String movie, User userSender)
+    public static void getAllCommentsForMoviepopo(Movie movie)
+    {
+        final List<Comment> listeCommentaires = new ArrayList<>();
+        MovieHelper.getMovieCollection().document(movie.getTitle()).collection(COLLECTION_NAME).orderBy("dateCreated").limit(50).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task)
+            {
+                if (task.isSuccessful())
+                {
+                    for (final QueryDocumentSnapshot doc : task.getResult())
+                    {
+                        HashMap mapUserSender = (HashMap) doc.getData().get("userSender");
+                        User userSender = new User(mapUserSender.get("uid").toString(), mapUserSender.get("username").toString());
+                        Comment comment = new Comment(doc.getData().get("message").toString(), doc.getDate("dateCreated"), userSender);
+                        listeCommentaires.add(comment);
+                    }
+                }
+                CommentHelper.fireCommentGet(listeCommentaires);
+            }
+        });
+    }
+
+    public static void createMessageForChat(String textMessage, Movie movie, User userSender)
     {
         // 1 - Create the Message object
         Comment message = new Comment(textMessage, userSender);
 
         // 2 - Store Message to Firestore
-        return MovieHelper.getMovieCollection().document(movie).collection(COLLECTION_NAME).add(message);
+        Map<String, Object> mapMovie = new HashMap<>();
+        mapMovie.put("movie", movie.getTitle());
+
+        MovieHelper.getMovieCollection().document(movie.getTitle()).set(mapMovie);
+        MovieHelper.getMovieCollection().document(movie.getTitle()).collection(COLLECTION_NAME).add(message);
     }
 }

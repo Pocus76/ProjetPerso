@@ -14,7 +14,14 @@ public class Comment
     private Date dateCreated;
     private User userSender;
 
-    public Comment() { }
+    public Comment() {}
+
+    public Comment(String message, Date dateCreated, User userSender)
+    {
+        this.message = message;
+        this.dateCreated = dateCreated;
+        this.userSender = userSender;
+    }
 
     public Comment(String message, User userSender)
     {

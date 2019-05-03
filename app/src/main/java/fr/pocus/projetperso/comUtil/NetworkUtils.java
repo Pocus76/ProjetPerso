@@ -80,7 +80,6 @@ public class NetworkUtils
                 movie.setOriginalLanguage(jsonObject.getString("original_language"));
                 //Adding a new movie object into ArrayList
                 list.add(movie);
-
             }
         }
         catch (JSONException e)

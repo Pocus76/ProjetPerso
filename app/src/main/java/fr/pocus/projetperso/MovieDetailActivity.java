@@ -11,11 +11,13 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.SimpleAdapter;
@@ -30,6 +32,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import fr.pocus.projetperso.comUtil.CommentHelper;
 import fr.pocus.projetperso.comUtil.FirebaseGestion;
@@ -40,13 +44,14 @@ import fr.pocus.projetperso.objets.Movie;
 import fr.pocus.projetperso.objets.Rating;
 import fr.pocus.projetperso.objets.User;
 import fr.pocus.projetperso.utils.CommentAdapter;
+import fr.pocus.projetperso.utils.CommentListener;
 import fr.pocus.projetperso.utils.DateUtils;
 
 /**
  * Created by Pocus on 24/01/2019.
  */
 
-public class MovieDetailActivity extends AppCompatActivity implements CommentAdapter.Listener
+public class MovieDetailActivity extends AppCompatActivity implements CommentListener
 {
     private static final String TAG = MovieDetailActivity.class.getSimpleName();
 
@@ -61,11 +66,10 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentAda
     private TextView txtConnecte;
     private EditText txtComment;
     private ImageButton btnSendComment;
-    private RecyclerView recyclerView;
+    private ListView listComments;
     private Dialog rankDialog;
 
-    private String movieTitle;
-    private CommentAdapter commentAdapter;
+    private Movie mov_intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -82,11 +86,10 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentAda
         btnSendComment = (ImageButton) findViewById(R.id.btn_submit_comment);
         layoutAddComment = (LinearLayout) findViewById(R.id.layout_add_comment);
         txtConnecte = (TextView) findViewById(R.id.txt_connecte);
-        recyclerView = (RecyclerView) findViewById(R.id.fragment_main_recycler_view);
+        listComments = (ListView) findViewById(R.id.listview_comments);
 
         Intent intent = getIntent();
-        final Movie mov_intent = (Movie) intent.getSerializableExtra("detail");
-        movieTitle = mov_intent.getTitle();
+        this.mov_intent = (Movie) intent.getSerializableExtra("detail");
 
         //load data into the ImageView using Picasso
         Picasso.get().load(BASE_URL + mov_intent.getPosterPath())
@@ -119,7 +122,7 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentAda
                     @Override
                     public void onClick(View v)
                     {
-                        RatingHelper.createRateForMovie(ratingBar.getRating(), mov_intent.getTitle(), FirebaseGestion.modelCurrentUser);
+                        RatingHelper.createRateForMovie(ratingBar.getRating(), mov_intent, FirebaseGestion.modelCurrentUser);
                         Toast.makeText(getApplicationContext(), "Vous avez noté ce film "+ratingBar.getRating()+"/10", Toast.LENGTH_SHORT).show();
                         rankDialog.dismiss();
                     }
@@ -155,7 +158,7 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentAda
                 {
                     // 2 - Create a new Message to Firestore
                     String commentContent = txtComment.getText().toString().replace("\n", " ");
-                    CommentHelper.createMessageForChat(commentContent, mov_intent.getTitle(), FirebaseGestion.modelCurrentUser);
+                    CommentHelper.createMessageForChat(commentContent, mov_intent, FirebaseGestion.modelCurrentUser);
 
                     // 3 - Reset text field
                     txtComment.setText("");
@@ -163,48 +166,59 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentAda
             }
         });
 
-        this.configureRecyclerView(movieTitle);
-    }
+        CommentHelper.addCommentListener(this);
 
-    private void configureRecyclerView(String movieTitle)
-    {
-        //Track current chat name
-        this.movieTitle = movieTitle;
-
-        //Configure Adapter & RecyclerView
-
-        String userId = "";
-        if (FirebaseGestion.modelCurrentUser!=null) userId = FirebaseGestion.modelCurrentUser.getUid();
-        this.commentAdapter = new CommentAdapter(generateOptionsForAdapter(CommentHelper.getAllCommentsForMovie(this.movieTitle)), this, userId);
-
-        commentAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount)
-            {
-                recyclerView.smoothScrollToPosition(commentAdapter.getItemCount()); // Scroll to bottom on new messages
-            }
-
-        });
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        recyclerView.setAdapter(this.commentAdapter);
-
-    }
-
-
-
-    // 6 - Create options for RecyclerView from a Query
-
-    private FirestoreRecyclerOptions<Comment> generateOptionsForAdapter(Query query)
-    {
-        return new FirestoreRecyclerOptions.Builder<Comment>().setQuery(query, Comment.class).setLifecycleOwner(this).build();
+        CommentHelper.getAllCommentsForMoviepopo(mov_intent);
     }
 
     @Override
-    public void onDataChanged()
+    public void commentGet(List<Comment> comments)
     {
+        //Création de la ArrayList qui nous permettra de remplir la listView
+        ArrayList<HashMap<String, String>> listItem = new ArrayList<>();
 
+        for(Comment comment : comments)
+        {
+            HashMap<String, String> map;
+            //Création d'une HashMap pour insérer les informations des de notre listView
+            map = new HashMap<>();
+            map.put("user", comment.getUserSender().getUsername());
+            map.put("date", DateUtils.toString(comment.getDateCreated()));
+            map.put("commentaire", comment.getMessage());
+
+            //enfin on ajoute cette hashMap dans la arrayList
+            listItem.add(map);
+        }
+        Log.d("TOTOTOTTOo", "onComplete: "+listItem.size());
+        //Création d'un SimpleAdapter qui se chargera de mettre les items présents dans notre list (listItem) dans la vue affichageitem
+        SimpleAdapter mSchedule = new SimpleAdapter (this.getBaseContext(), listItem, R.layout.list_item,
+                new String[] {"user", "date", "commentaire"}, new int[] {R.id.nom_item, R.id.date_item, R.id.description_item});
+
+        //On attribue à notre listView l'adapter que l'on vient de créer
+        listComments.setAdapter(mSchedule);
+        setListViewHeightBasedOnChildren(listComments);
+        Log.d("TOTOTOTTOo", "onComplete: "+listComments.getAdapter().getCount());
+    }
+
+    public static void setListViewHeightBasedOnChildren(ListView listView)
+    {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null)
+        {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
     }
 }
