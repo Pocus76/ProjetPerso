@@ -11,76 +11,79 @@ import android.widget.SimpleAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import fr.pocus.projetperso.comUtil.ApiConnection;
-import fr.pocus.projetperso.comUtil.RatingHelper;
+import fr.pocus.projetperso.comUtil.CommentHelper;
+import fr.pocus.projetperso.objets.Comment;
 import fr.pocus.projetperso.objets.Movie;
-import fr.pocus.projetperso.objets.Rating;
+import fr.pocus.projetperso.utils.CommentListener;
 import fr.pocus.projetperso.utils.DateUtils;
-import fr.pocus.projetperso.utils.FirebaseListener;
 import fr.pocus.projetperso.utils.GetMovieListener;
 
 /**
- * Created by Pocus on 20/03/2019.
+ * Created by Pocus on 14/05/2019.
  */
-
-public class FilmsNotesActivity extends AppCompatActivity implements FirebaseListener, GetMovieListener
+public class FilmsCommentesActivity extends AppCompatActivity implements CommentListener, GetMovieListener
 {
-    private ListView listViewRatings;
+    private ListView listViewComments;
     ProgressDialog pd = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_films_notes);
+        setContentView(R.layout.activity_films_commentes);
 
-        listViewRatings = findViewById(R.id.listview_ratings);
+        listViewComments = findViewById(R.id.listview_comments);
 
-        RatingHelper.addRatingListener(this);
-        RatingHelper.getAllRatingsFromAUser();
+        CommentHelper.addCommentListener(this);
+        CommentHelper.getAllCommentsForAUser();
     }
 
     @Override
-    public void ratingGet(HashMap<String, Rating> listeNotes)
+    public void commentGet(List<Comment> comments) {}
+
+    @Override
+    public void commentGet(HashMap<String, Comment> listeComments)
     {
         //Création de la ArrayList qui nous permettra de remplir la listView
         ArrayList<HashMap<String, String>> listItem = new ArrayList<>();
 
-        for(Map.Entry<String, Rating> entry : listeNotes.entrySet())
+        for(Map.Entry<String, Comment> entry : listeComments.entrySet())
         {
             String nomFilm = entry.getKey();
-            Rating note = entry.getValue();
+            Comment comment = entry.getValue();
 
             HashMap<String, String> map;
             //Création d'une HashMap pour insérer les informations des de notre listView
             map = new HashMap<>();
             map.put("film", nomFilm);
-            map.put("date", DateUtils.toString(note.getDateCreated()));
-            map.put("note", note.getRating()+"/10");
+            map.put("date", DateUtils.toString(comment.getDateCreated()));
+            map.put("comment", comment.getMessage());
 
             //enfin on ajoute cette hashMap dans la arrayList
             listItem.add(map);
         }
         //Création d'un SimpleAdapter qui se chargera de mettre les items présents dans notre list (listItem) dans la vue affichageitem
         SimpleAdapter mSchedule = new SimpleAdapter (this.getBaseContext(), listItem, R.layout.list_item,
-                new String[] {"note", "date", "film"}, new int[] {R.id.nom_item, R.id.date_item, R.id.description_item});
+                new String[] {"film", "date", "comment"}, new int[] {R.id.nom_item, R.id.date_item, R.id.description_item});
 
         //On attribue à notre listView l'adapter que l'on vient de créer
-        listViewRatings.setAdapter(mSchedule);
+        listViewComments.setAdapter(mSchedule);
 
-        listViewRatings.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        listViewComments.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             @SuppressWarnings("unchecked")
             public void onItemClick(AdapterView<?> a, View v, int position, long id)
             {
-                ApiConnection.addRatingListener(FilmsNotesActivity.this);
+                ApiConnection.addRatingListener(FilmsCommentesActivity.this);
                 //on récupère la HashMap contenant les infos de notre item (titre, description, img)
-                HashMap<String, String> map = (HashMap<String, String>) listViewRatings.getItemAtPosition(position);
+                HashMap<String, String> map = (HashMap<String, String>) listViewComments.getItemAtPosition(position);
                 new ApiConnection().execute(map.get("film"));
-                pd = new ProgressDialog(FilmsNotesActivity.this);
+                pd = new ProgressDialog(FilmsCommentesActivity.this);
                 pd.setMessage("Veuillez patienter");
                 pd.setCancelable(false);
                 pd.show();
@@ -92,8 +95,8 @@ public class FilmsNotesActivity extends AppCompatActivity implements FirebaseLis
     public void movieGet(Movie movie)
     {
         pd.dismiss();
-        ApiConnection.removeRatingListener(FilmsNotesActivity.this);
-        Intent intent = new Intent(FilmsNotesActivity.this, MovieDetailActivity.class);
+        ApiConnection.removeRatingListener(FilmsCommentesActivity.this);
+        Intent intent = new Intent(FilmsCommentesActivity.this, MovieDetailActivity.class);
         intent.putExtra("detail", movie);
         startActivity(intent);
         finish();
@@ -102,7 +105,7 @@ public class FilmsNotesActivity extends AppCompatActivity implements FirebaseLis
     @Override
     protected void onStop()
     {
-        RatingHelper.removeRatingListener(FilmsNotesActivity.this);
+        CommentHelper.removeCommentListener(FilmsCommentesActivity.this);
         super.onStop();
     }
 }

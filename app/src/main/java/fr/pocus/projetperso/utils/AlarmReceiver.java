@@ -40,8 +40,8 @@ public class AlarmReceiver extends BroadcastReceiver
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.logo)
-                .setContentTitle("New movies on theater !")
-                .setContentText("Don't forget to check on our app !").setSound(alarmSound)
+                .setContentTitle("De nouveaux films sont disponibles !")
+                .setContentText("N'oubliez pas de les consulter sur notre application !").setSound(alarmSound)
                 .setAutoCancel(true).setWhen(when)
                 .setContentIntent(pendingIntent)
                 .setVibrate(new long[]{1000});

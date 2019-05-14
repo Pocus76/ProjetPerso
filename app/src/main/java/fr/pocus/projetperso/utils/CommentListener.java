@@ -1,5 +1,6 @@
 package fr.pocus.projetperso.utils;
 
+import java.util.HashMap;
 import java.util.List;
 
 import fr.pocus.projetperso.objets.Comment;
@@ -11,4 +12,5 @@ import fr.pocus.projetperso.objets.Comment;
 public interface CommentListener
 {
     void commentGet(List<Comment> comments);
+    void commentGet(HashMap<String, Comment> listeComments);
 }

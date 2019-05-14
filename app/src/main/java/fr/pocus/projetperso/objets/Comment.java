@@ -13,6 +13,7 @@ public class Comment
     private String message;
     private Date dateCreated;
     private User userSender;
+    private String movieName;
 
     public Comment() {}
 
@@ -41,4 +42,12 @@ public class Comment
     public void setMessage(String message) { this.message = message; }
     public void setDateCreated(Date dateCreated) { this.dateCreated = dateCreated; }
     public void setUserSender(User userSender) { this.userSender = userSender; }
+
+    public String getMovieName() {
+        return movieName;
+    }
+
+    public void setMovieName(String movieName) {
+        this.movieName = movieName;
+    }
 }

@@ -123,7 +123,7 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentLis
                     public void onClick(View v)
                     {
                         RatingHelper.createRateForMovie(ratingBar.getRating(), mov_intent, FirebaseGestion.modelCurrentUser);
-                        Toast.makeText(getApplicationContext(), "Vous avez noté ce film "+ratingBar.getRating()+"/10", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Vous avez noté ce film "+(int)ratingBar.getRating()+"/10", Toast.LENGTH_SHORT).show();
                         rankDialog.dismiss();
                     }
                 });
@@ -183,7 +183,11 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentLis
             //Création d'une HashMap pour insérer les informations des de notre listView
             map = new HashMap<>();
             map.put("user", comment.getUserSender().getUsername());
-            map.put("date", DateUtils.toString(comment.getDateCreated()));
+            if (comment.getDateCreated()!=null)
+            {
+                map.put("date", DateUtils.toString(comment.getDateCreated()));
+            }
+            else map.put("date", null);
             map.put("commentaire", comment.getMessage());
 
             //enfin on ajoute cette hashMap dans la arrayList
@@ -197,8 +201,10 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentLis
         //On attribue à notre listView l'adapter que l'on vient de créer
         listComments.setAdapter(mSchedule);
         setListViewHeightBasedOnChildren(listComments);
-        Log.d("TOTOTOTTOo", "onComplete: "+listComments.getAdapter().getCount());
     }
+
+    @Override
+    public void commentGet(HashMap<String, Comment> listeComments) {}
 
     public static void setListViewHeightBasedOnChildren(ListView listView)
     {

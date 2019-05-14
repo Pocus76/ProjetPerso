@@ -12,6 +12,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,14 @@ public class CommentHelper
         }
     }
 
+    protected static void fireCommentGet(HashMap<String, Comment> listeComments)
+    {
+        for(CommentListener listener : firebaseListeners)
+        {
+            listener.commentGet(listeComments);
+        }
+    }
+
     // --- GET ---
 
     public static Query getAllCommentsForMovie(Movie movie)
@@ -55,7 +64,7 @@ public class CommentHelper
         return MovieHelper.getMovieCollection().document(movie.getTitle()).collection(COLLECTION_NAME).orderBy("dateCreated").limit(50);
     }
 
-    public static void getAllCommentsForMoviepopo(Movie movie)
+    public static void getAllCommentsForMoviepopo(final Movie movie)
     {
         final List<Comment> listeCommentaires = new ArrayList<>();
         MovieHelper.getMovieCollection().document(movie.getTitle()).collection(COLLECTION_NAME).orderBy("dateCreated").limit(50).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
@@ -70,10 +79,58 @@ public class CommentHelper
                         HashMap mapUserSender = (HashMap) doc.getData().get("userSender");
                         User userSender = new User(mapUserSender.get("uid").toString(), mapUserSender.get("username").toString());
                         Comment comment = new Comment(doc.getData().get("message").toString(), doc.getDate("dateCreated"), userSender);
+                        comment.setMovieName(movie.getTitle());
                         listeCommentaires.add(comment);
                     }
                 }
+                Collections.reverse(listeCommentaires);
                 CommentHelper.fireCommentGet(listeCommentaires);
+            }
+        });
+    }
+
+    public static void getAllCommentsForAUser()
+    {
+        final HashMap<String, Comment> listComments = new HashMap<>();
+        MovieHelper.getMovieCollection().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task)
+            {
+                if (task.isSuccessful())
+                {
+                    for (final QueryDocumentSnapshot doc : task.getResult())
+                    {
+                        final String movieName = doc.getId();
+                        MovieHelper.getMovieCollection().document(movieName).collection(COLLECTION_NAME).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
+                        {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task)
+                            {
+                                if (task.isSuccessful())
+                                {
+                                    for (QueryDocumentSnapshot document : task.getResult())
+                                    {
+                                        Map<String, Object> listDatas = document.getData();
+                                        Map<String, Object> listDataUser = (Map<String, Object>) listDatas.get("userSender");
+                                        if (listDataUser.get("username").equals(FirebaseGestion.modelCurrentUser.getUsername()))
+                                        {
+                                            HashMap mapUserSender = (HashMap) document.getData().get("userSender");
+                                            User userSender = new User(mapUserSender.get("uid").toString(), mapUserSender.get("username").toString());
+                                            Comment comment = new Comment(document.getString("message"), document.getDate("dateCreated"), userSender);
+                                            listComments.put(movieName, comment);
+                                        }
+                                    }
+                                }
+                                fireCommentGet(listComments);
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    Log.d("TOTOTOTOTO", "onComplete: FAIL");
+                }
             }
         });
     }
@@ -89,5 +146,7 @@ public class CommentHelper
 
         MovieHelper.getMovieCollection().document(movie.getTitle()).set(mapMovie);
         MovieHelper.getMovieCollection().document(movie.getTitle()).collection(COLLECTION_NAME).add(message);
+
+        CommentHelper.getAllCommentsForMoviepopo(movie);
     }
 }

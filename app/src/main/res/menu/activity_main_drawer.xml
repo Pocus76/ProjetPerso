@@ -10,9 +10,21 @@
             android:visible="false"/>
 
         <item
+            android:id="@+id/btn_recherche"
+            android:icon="@drawable/ic_search"
+            android:title="Rechercher un film"
+            android:visible="true" />
+
+        <item
             android:id="@+id/btn_films_notes"
             android:icon="@drawable/ic_star"
             android:title="Mes films notés"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/btn_films_commentes"
+            android:icon="@drawable/ic_comment"
+            android:title="Mes films commentés"
             android:visible="false" />
 
         <item

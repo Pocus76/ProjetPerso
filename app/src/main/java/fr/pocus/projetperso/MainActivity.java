@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MenuItem btnConnexion;
     private MenuItem btnMonCompte;
     private MenuItem btnFilmsNotes;
+    private MenuItem btnFilmsCommentes;
     private NavigationView navigationView;
     private TextView txtNomUser;
     private TextView txtMailUser;
@@ -104,6 +105,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 Intent intentFilmsNotes = new Intent(MainActivity.this, FilmsNotesActivity.class);
                 startActivity(intentFilmsNotes);
+                return false;
+            }
+        });
+        btnFilmsCommentes = menuSide.findItem(R.id.btn_films_commentes);
+        btnFilmsCommentes.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
+        {
+            @Override
+            public boolean onMenuItemClick(MenuItem item)
+            {
+                Intent intentFilmsCommentes = new Intent(MainActivity.this, FilmsCommentesActivity.class);
+                startActivity(intentFilmsCommentes);
                 return false;
             }
         });
@@ -259,6 +271,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 txtMailUser.setText(FirebaseGestion.getCurrentUser().getEmail());
                 btnMonCompte.setVisible(true);
                 btnFilmsNotes.setVisible(true);
+                btnFilmsCommentes.setVisible(true);
                 btnConnexion.setTitle("Se déconnecter");
                 btnConnexion.setIcon(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_logout));
 
@@ -310,6 +323,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     txtNomUser.setText("");
                     txtMailUser.setText("Vous n'êtes pas connecté");
                     btnFilmsNotes.setVisible(false);
+                    btnFilmsCommentes.setVisible(false);
                     btnMonCompte.setVisible(false);
                     btnConnexion.setTitle("Se connecter");
                     btnConnexion.setIcon(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_auth));
