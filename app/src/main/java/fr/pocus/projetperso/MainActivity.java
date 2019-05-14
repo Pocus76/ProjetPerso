@@ -335,6 +335,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
+
     private void signOutUserFromFirebase()
     {
         AuthUI.getInstance().signOut(this).addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
@@ -342,7 +343,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     // 3 - Create OnCompleteListener called after tasks ended
-
     private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin)
     {
         return new OnSuccessListener<Void>()

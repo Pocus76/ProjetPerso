@@ -1,11 +1,22 @@
 package fr.pocus.projetperso.comUtil;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.util.Log;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import fr.pocus.projetperso.MainActivity;
 import fr.pocus.projetperso.objets.User;
+
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 /**
  * Created by Pocus on 25/01/2019.
@@ -49,8 +60,21 @@ public class UserHelper
     }
 
     // --- DELETE ---
-    public static Task<Void> deleteUser(String uid)
+    public static Task<Void> deleteUser(final String uid, final Context context)
     {
-        return UserHelper.getUsersCollection().document(uid).delete();
+        Log.d("-----------", "deleteUser: "+uid);
+        return UserHelper.getUsersCollection().document(uid).delete().addOnCompleteListener(new OnCompleteListener<Void>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                Intent intent = new Intent(context, MainActivity.class);
+                int mPendingIntentId = 1;
+                PendingIntent mPendingIntent = PendingIntent.getActivity(getApplicationContext(), mPendingIntentId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                AlarmManager mgr = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+                System.exit(0);
+            }
+        });
     }
 }
