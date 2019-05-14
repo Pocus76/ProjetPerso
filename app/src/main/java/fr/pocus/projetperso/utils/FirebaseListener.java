@@ -11,4 +11,5 @@ import fr.pocus.projetperso.objets.Rating;
 public interface FirebaseListener
 {
     void ratingGet(HashMap<String, Rating> listeNotes);
+    void favorisGet(HashMap<String, Boolean> listeFavoris);
 }

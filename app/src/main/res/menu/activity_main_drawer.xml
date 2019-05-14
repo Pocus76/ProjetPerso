@@ -16,6 +16,12 @@
             android:visible="true" />
 
         <item
+            android:id="@+id/btn_films_favoris"
+            android:icon="@drawable/ic_comment"
+            android:title="Mes films favoris"
+            android:visible="false" />
+
+        <item
             android:id="@+id/btn_films_notes"
             android:icon="@drawable/ic_star"
             android:title="Mes films notés"

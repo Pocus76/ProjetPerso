@@ -58,7 +58,7 @@ public class FilmsNotesActivity extends AppCompatActivity implements FirebaseLis
             map = new HashMap<>();
             map.put("film", nomFilm);
             map.put("date", DateUtils.toString(note.getDateCreated()));
-            map.put("note", note.getRating()+"/10");
+            map.put("note", (int)note.getRating()+"/10");
 
             //enfin on ajoute cette hashMap dans la arrayList
             listItem.add(map);
@@ -87,6 +87,9 @@ public class FilmsNotesActivity extends AppCompatActivity implements FirebaseLis
             }
         });
     }
+
+    @Override
+    public void favorisGet(HashMap<String, Boolean> listeFavoris) {}
 
     @Override
     public void movieGet(Movie movie)

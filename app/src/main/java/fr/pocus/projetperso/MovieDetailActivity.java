@@ -3,6 +3,8 @@ package fr.pocus.projetperso;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import fr.pocus.projetperso.comUtil.CommentHelper;
+import fr.pocus.projetperso.comUtil.FavorisHelper;
 import fr.pocus.projetperso.comUtil.FirebaseGestion;
 import fr.pocus.projetperso.comUtil.RatingHelper;
 import fr.pocus.projetperso.comUtil.UserHelper;
@@ -46,12 +49,13 @@ import fr.pocus.projetperso.objets.User;
 import fr.pocus.projetperso.utils.CommentAdapter;
 import fr.pocus.projetperso.utils.CommentListener;
 import fr.pocus.projetperso.utils.DateUtils;
+import fr.pocus.projetperso.utils.FirebaseListener;
 
 /**
  * Created by Pocus on 24/01/2019.
  */
 
-public class MovieDetailActivity extends AppCompatActivity implements CommentListener
+public class MovieDetailActivity extends AppCompatActivity implements CommentListener, FirebaseListener
 {
     private static final String TAG = MovieDetailActivity.class.getSimpleName();
 
@@ -59,6 +63,7 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentLis
 
     private TextView txtTitre;
     private ImageView imgFilm;
+    private ImageView imgBookmark;
     private RatingBar ratingBar;
     private TextView txtVote;
     private TextView txtDescription;
@@ -70,6 +75,7 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentLis
     private Dialog rankDialog;
 
     private Movie mov_intent;
+    private boolean isFavoris = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -79,6 +85,7 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentLis
 
         txtTitre = (TextView) findViewById(R.id.titre_film);
         imgFilm = (ImageView) findViewById(R.id.imageViewFilm);
+        imgBookmark = findViewById(R.id.imageViewBookmark);
         ratingBar = (RatingBar) findViewById(R.id.rating_bar);
         txtVote = (TextView) findViewById(R.id.vote_film);
         txtDescription = (TextView) findViewById(R.id.description_film);
@@ -133,9 +140,35 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentLis
             }
         });
 
+        FavorisHelper.addFavorisListener(this);
+        if (FirebaseGestion.modelCurrentUser!=null) FavorisHelper.getAllFavorisFromAUser();
+
+        imgBookmark.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (!isFavoris)
+                {
+                    FavorisHelper.createFavorisForMovie(true, mov_intent, FirebaseGestion.modelCurrentUser);
+                    imgBookmark.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_bookmark));
+                    Toast.makeText(getApplicationContext(), "Ce film a été ajouté à vos favoris", Toast.LENGTH_SHORT).show();
+                    isFavoris = true;
+                }
+                else
+                {
+                    FavorisHelper.deleteFavorisForMovie(mov_intent, FirebaseGestion.modelCurrentUser);
+                    imgBookmark.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_bookmark_black));
+                    Toast.makeText(getApplicationContext(), "Ce film a été retiré de vos favoris", Toast.LENGTH_SHORT).show();
+                    isFavoris = false;
+                }
+            }
+        });
+
         if (FirebaseGestion.modelCurrentUser==null)
         {
             layoutAddComment.setVisibility(View.GONE);
+            imgBookmark.setVisibility(View.GONE);
             txtConnecte.setVisibility(View.VISIBLE);
             ratingBar.setOnTouchListener(new View.OnTouchListener()
             {
@@ -226,5 +259,23 @@ public class MovieDetailActivity extends AppCompatActivity implements CommentLis
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);
         listView.requestLayout();
+    }
+
+    @Override
+    public void ratingGet(HashMap<String, Rating> listeNotes) {}
+
+    @Override
+    public void favorisGet(HashMap<String, Boolean> listeFavoris)
+    {
+        for(Map.Entry<String, Boolean> entry : listeFavoris.entrySet())
+        {
+            String nomFilm = entry.getKey();
+            boolean favoris = entry.getValue();
+            if (nomFilm.equals(mov_intent.getTitle())&&favoris)
+            {
+                imgBookmark.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_bookmark));
+                isFavoris = true;
+            }
+        }
     }
 }

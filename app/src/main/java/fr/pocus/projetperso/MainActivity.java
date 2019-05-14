@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -27,9 +26,7 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,8 +51,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @BindView(R.id.txtFilter) TextView txtFilter;
     @BindView(R.id.layout_main) ConstraintLayout coordinatorLayout;
     private Menu actionsMenu;
+    private MenuItem btnSearchFilms;
     private MenuItem btnConnexion;
     private MenuItem btnMonCompte;
+    private MenuItem btnFilmsFavoris;
     private MenuItem btnFilmsNotes;
     private MenuItem btnFilmsCommentes;
     private NavigationView navigationView;
@@ -88,15 +87,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mProgressBar.setVisibility(View.INVISIBLE); //Hide Progressbar by Default
         new CommunicationApi().execute(); //New code
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         Menu menuSide = navigationView.getMenu();
+        btnSearchFilms = menuSide.findItem(R.id.btn_recherche);
+        btnSearchFilms.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
+        {
+            @Override
+            public boolean onMenuItemClick(MenuItem item)
+            {
+                Intent intentSearch = new Intent(MainActivity.this, SearchFilmsActivity.class);
+                startActivity(intentSearch);
+                return false;
+            }
+        });
         btnMonCompte = menuSide.findItem(R.id.btn_mon_compte);
+        btnMonCompte.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
+        {
+            @Override
+            public boolean onMenuItemClick(MenuItem item)
+            {
+                Intent intentFilmsNotes = new Intent(MainActivity.this, MonCompteActivity.class);
+                startActivity(intentFilmsNotes);
+                return false;
+            }
+        });
+        btnFilmsFavoris = menuSide.findItem(R.id.btn_films_favoris);
+        btnFilmsFavoris.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
+        {
+            @Override
+            public boolean onMenuItemClick(MenuItem item)
+            {
+                Intent intentFilmsNotes = new Intent(MainActivity.this, FilmsFavorisActivity.class);
+                startActivity(intentFilmsNotes);
+                return false;
+            }
+        });
         btnFilmsNotes = menuSide.findItem(R.id.btn_films_notes);
         btnFilmsNotes.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
         {
@@ -270,6 +301,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 txtNomUser.setText(FirebaseGestion.getCurrentUser().getDisplayName());
                 txtMailUser.setText(FirebaseGestion.getCurrentUser().getEmail());
                 btnMonCompte.setVisible(true);
+                btnFilmsFavoris.setVisible(true);
                 btnFilmsNotes.setVisible(true);
                 btnFilmsCommentes.setVisible(true);
                 btnConnexion.setTitle("Se déconnecter");
@@ -322,6 +354,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     txtNomUser.setText("");
                     txtMailUser.setText("Vous n'êtes pas connecté");
+                    btnFilmsFavoris.setVisible(false);
                     btnFilmsNotes.setVisible(false);
                     btnFilmsCommentes.setVisible(false);
                     btnMonCompte.setVisible(false);

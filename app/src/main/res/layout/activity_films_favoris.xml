@@ -5,10 +5,11 @@
     android:background="@color/colorPrimary"
     android:padding="4dp">
 
-
     <ListView
-        android:id="@+id/listview_ratings"
+        android:id="@+id/listview_favoris"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:divider="@color/light_gray"
+        android:dividerHeight="4px" />
 
 </LinearLayout>
